@@ -5,5 +5,5 @@
   become: yes
 
   roles:
-    - web
-    - nginx_balancer
+    - web_role
+    - nginx_role
