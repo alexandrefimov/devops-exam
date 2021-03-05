@@ -1,0 +1,31 @@
+---
+# tasks file for nginx_balancer
+
+- name: Install Docker
+  include_role:
+    name: docker
+
+- name: Generate balancer config file
+  template: src=load_balancer.j2 dest=/home/ec2-user/nginx.conf
+
+- name: Copy nginx Dockerfile
+  copy: src=Dockerfile dest=/home/ec2-user/Dockerfile
+
+- name: Build Nginx Load Balancer Container
+  docker_image: 
+    path: /home/ec2-user/
+    name: nginx
+    tag: load_balancer
+
+- name: Start Nginx Load Balancer Container
+  docker_container:
+    name: nginx_load_balancer
+    image: nginx:load_balancer
+    state: started
+    restart: yes
+    networks:
+      - name: app_and_balancer
+    ports:
+      - "80:80"
+
+

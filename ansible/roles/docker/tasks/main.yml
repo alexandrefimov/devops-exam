@@ -1,0 +1,23 @@
+---
+# tasks file for docker
+
+- name: Update Centos
+  yum: name="*" state=latest
+
+- name: Install Docker and pip
+  yum:
+    name: 
+    - docker
+    - python-pip
+    state: latest
+
+- name: Pip install docker
+  pip:
+    name:
+    - docker-py
+
+- name: Start docker service
+  service:
+    name: docker
+    state: started
+    enabled: yes

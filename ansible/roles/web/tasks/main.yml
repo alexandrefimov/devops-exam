@@ -1,0 +1,62 @@
+---
+# tasks file for web
+
+- name: Install Docker
+  include_role: 
+    name: docker
+
+- name: Log into DockerHub
+  community.docker.docker_login:
+    username: alexanderefimov
+    password: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          39396537373536366166653939336631633838353937366131663930666636616336303565303235
+          3066386337616432373538653265643736323233383132350a613437396165306437373932336437
+          36393133373864323164663636343134626163323931353064336365356638663030626130313332
+          6435376135653239360a323166396263306230346561386636346534386333386439643338363739
+          3633
+
+- name: Upload app image from DockerHub
+  docker_image:
+    name: alexanderefimov/exam_images:calc_app
+
+- name: Create Docker network
+  docker_network:
+    name: app_and_balancer
+
+- name: Start Docker container calc_app_1
+  docker_container:
+    name: web_app_calc_1
+    image: alexanderefimov/exam_images:calc_app
+    state: started
+    restart: yes
+    networks:
+      - name: app_and_balancer
+    ports:
+      - "5000:5000"
+
+- name: Start Docker container calc_app_2
+  docker_container:
+    name: web_app_calc_2
+    image: alexanderefimov/exam_images:calc_app
+    state: started
+    restart: yes
+    networks:
+      - name: app_and_balancer
+    ports:
+      - "5001:5000"
+
+- name: Start Docker container calc_app_3
+  docker_container:
+    name: web_app_calc_3
+    image: alexanderefimov/exam_images:calc_app
+    state: started
+    restart: yes
+    networks:
+      - name: app_and_balancer
+    ports:
+      - "5002:5000"
+
+- name: Log out of DockerHub
+  community.docker.docker_login:
+    state: absent

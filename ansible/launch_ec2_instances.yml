@@ -1,0 +1,68 @@
+---
+- name: Create AWS EC2 Amazon Linux
+  hosts: local
+  connection: local
+  gather_facts: false
+  vars:
+    keypair: ireland_key
+    instance_type: t2.micro
+    image1: ami-096f43ef67d75e998
+    region: eu-west-1
+    count: 1
+    security_group: Ansible_SG
+    aws_access_key: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          64316139303931663138396364373634316130393763613063356535633038393066343662306536
+          6564353937303263323831633166613731323461363239370a343831313131646530653335303630
+          35633862306162613133623639633135663936363235623462646464653237613534623035653234
+          3062656664636565300a343331346266363538633237656433353738323662353264636539306330
+          36316131616138336162333061316236383131336530663730393735363432623438
+    aws_secret_key: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          33636466393430353930626438373535656132393837353036383466363066303930323131643764
+          6263633462303639313131663138656439316437366437380a666261636231626466646430303261
+          62333836336430373734646639393539623130626666303265626330303733383935326564393135
+          6437393538343635340a626438646135353034633830316339323165353732373431353364653536
+          65303838356461623965343334626630316364643133313330366565623463326463656463333739
+          6231326432373861343236623061366564313465366562303631
+
+  tasks:
+    - name: Create a security group to open 22, 80, 443 ports
+      ec2_group: 
+        name: "{{ security_group }}"
+        description: Security group for servers with 22, 80, 443 opened
+        region: "{{ region }}"
+        rules:
+          - proto: tcp
+            from_port: 22
+            to_port: 22
+            cidr_ip: 0.0.0.0/0
+          - proto: tcp
+            from_port: 80
+            to_port: 80
+            cidr_ip: 0.0.0.0/0
+          - proto: tcp
+            from_port: 443
+            to_port: 443
+            cidr_ip: 0.0.0.0/0
+        rules_egress: 
+          - proto: all
+            cidr_ip: 0.0.0.0/0
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+
+    - name: Create Amazon Linux Instance
+      ec2:
+        key_name: "{{ keypair }}"
+        instance_type: "{{ instance_type }}"
+        image: "{{ image1 }}"
+        group: "{{ security_group }}"
+        region: "{{ region }}"
+        instance_tags:
+          Name: Amazon-Linux
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+      register: ec2
+    
+    - name: Print all ec2 variables
+      debug: var=ec2

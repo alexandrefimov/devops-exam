@@ -1,0 +1,9 @@
+---
+
+- name: Deploy web app to servers
+  hosts: all
+  become: yes
+
+  roles:
+    - web
+    - nginx_balancer

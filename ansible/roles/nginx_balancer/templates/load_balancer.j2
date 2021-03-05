@@ -1,0 +1,19 @@
+events {}
+
+http {
+
+  upstream load_balancer {
+    server {{ ansible_default_ipv4.address }}:5000;
+    server {{ ansible_default_ipv4.address }}:5001;
+    server {{ ansible_default_ipv4.address }}:5002;
+  }
+
+  server {
+    listen 80;
+    location / {
+      proxy_pass http://load_balancer;
+    }
+  }
+}
+
+
