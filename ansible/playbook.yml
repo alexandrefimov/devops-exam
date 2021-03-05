@@ -5,5 +5,6 @@
   become: yes
 
   roles:
-    - web_role
-    - nginx_role
+    - alexandrefimov.web_role, master
+    - alexandrefimov.nginx_role, master
+
